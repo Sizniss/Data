@@ -27,10 +27,10 @@ object UserManager {
 
             val uuid = jsonProfile.get("uuid").asString
 
-            for (key in jsonProfile.keySet()) {
-                if(key != "uuid") {
-                    UserProfile(uuid).addData(key,jsonProfile.get(key))
-                }
+            val jsonData = jsonProfile.getAsJsonObject("data")
+
+            for (key in jsonData.keySet()) {
+                UserProfile(uuid).addData(key,jsonData.get(key))
             }
         }
     }
@@ -39,10 +39,23 @@ object UserManager {
         val jsonArray = JsonArray()
         for (profile in profileList.values) {
             val jsonProfile = JsonObject()
-            jsonProfile.addProperty("uuid",profile.uuid)
-            for(data in profile.getDataList()) {
+            val jsonData = JsonObject()
 
+            jsonProfile.addProperty("uuid",profile.uuid)
+
+            for(data in profile.getDataList()) {
+                if(data.value is Number)
+                    jsonData.addProperty(data.key,data.value as Number)
+                if(data.value is String)
+                    jsonData.addProperty(data.key,data.value as String)
+                if(data.value is Number)
+                    jsonData.addProperty(data.key,data.value as Char)
+                if(data.value is Boolean)
+                    jsonData.addProperty(data.key,data.value as Boolean)
             }
+
+            jsonProfile.add("data",jsonData)
+
             jsonArray.add(jsonProfile)
         }
         configFile.write(jsonArray.toString())

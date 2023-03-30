@@ -8,7 +8,7 @@ import java.io.File
 
 class Config(private val plugin:JavaPlugin, filename:String) : File(plugin.dataFolder,filename){
 
-    var text = "[]"
+    private var text = "[]"
 
     init {
         makeDataDir()
