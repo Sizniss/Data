@@ -1,13 +1,15 @@
 package kr.sizniss.data.classes
 
 import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import org.bukkit.plugin.java.JavaPlugin
+
 import java.io.File
 
 
-class Config(private val plugin:JavaPlugin, filename:String) : File(plugin.dataFolder,filename){
+class Config(private val path:File, filename:String) {
 
+    private var file = File(path,filename)
     private var text = "[]"
 
     init {
@@ -17,28 +19,33 @@ class Config(private val plugin:JavaPlugin, filename:String) : File(plugin.dataF
     }
 
     private fun makeDataDir() {
-        if (!plugin.dataFolder.exists()) {
-            plugin.dataFolder.mkdir()
+        if (!file.exists()) {
+            path.mkdir()
         }
     }
 
     private fun create() {
-        if (!this.exists()) {
-            this.createNewFile()
+        if (!file.exists()) {
+            file.createNewFile()
             write("[]")
         }
     }
 
     private fun read() : String {
-        return readText()
+        return file.readText()
     }
-
+    fun write(jsonObject: JsonObject) {
+        write(jsonObject.asString)
+    }
+    fun write(jsonArray: JsonArray) {
+        write(jsonArray.asString)
+    }
     fun write(text:String) {
        this.text = text
     }
 
     fun save() {
-        this.writeText(text)
+        file.writeText(text)
     }
 
     fun getJsonArray(): JsonArray{

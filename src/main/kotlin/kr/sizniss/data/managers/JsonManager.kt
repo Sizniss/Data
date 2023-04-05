@@ -1,5 +1,7 @@
 package kr.sizniss.data.managers
 
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import kr.sizniss.data.Data.Companion.plugin
 import org.bukkit.Location
@@ -28,6 +30,10 @@ object JsonManager {
         location.pitch = jsonObject.get("pitch").asFloat
 
         return location
+    }
+
+    fun toPrettyJson(jsonElement: JsonElement): String {
+        return GsonBuilder().setPrettyPrinting().create().toJson(jsonElement)
     }
 
 }
