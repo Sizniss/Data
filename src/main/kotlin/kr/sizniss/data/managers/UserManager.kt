@@ -1,11 +1,8 @@
 package kr.sizniss.data.managers
 
 
-import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 
-import kr.sizniss.data.Data.Companion.plugin
-import kr.sizniss.data.classes.Config
 import kr.sizniss.data.classes.User
 
 import org.bukkit.entity.Player
