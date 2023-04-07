@@ -12,7 +12,7 @@ class Data : JavaPlugin() {
     companion object {
         lateinit var plugin: Data
 
-        val jsonMap = HashMap<String,Class<Any>>()
+        val jsonMap = HashMap<String,Class<out Json>>()
 
         val configFile = Config(plugin.dataFolder, "data.json")
 
@@ -57,7 +57,7 @@ class Data : JavaPlugin() {
             }
         }
 
-        fun request(key:String, jsonClass: Class<Any>) {
+        fun <T:Json> request(key:String, jsonClass: Class<T>) {
             jsonMap[key] = jsonClass
         }
     }
