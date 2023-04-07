@@ -3,6 +3,7 @@ package kr.sizniss.data
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kr.sizniss.data.classes.Config
+import kr.sizniss.data.classes.Json
 import kr.sizniss.data.classes.User
 import kr.sizniss.data.managers.UserManager
 import org.bukkit.plugin.java.JavaPlugin
@@ -11,7 +12,10 @@ class Data : JavaPlugin() {
     companion object {
         lateinit var plugin: Data
 
+        val jsonMap = HashMap<String,Class<Json>>()
+
         val configFile = Config(plugin.dataFolder, "data.json")
+
 
         fun saveJson() {
             val jsonArray = JsonArray()
@@ -48,6 +52,10 @@ class Data : JavaPlugin() {
 
                 UserManager.updateUser(user)
             }
+        }
+
+        fun request(key:String, jsonClass: Class<Json>) {
+            jsonMap[key] = jsonClass
         }
     }
 
