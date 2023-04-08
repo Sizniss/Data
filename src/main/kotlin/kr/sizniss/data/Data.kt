@@ -46,8 +46,12 @@ class Data : JavaPlugin() {
 
                 val dataJson = userJson.getAsJsonObject("data")
 
-                user.setDataObject(key, jsonMap[key]!!.getDeclaredConstructor().newInstance(dataJson.getAsJsonObject(key)) as Json)
-
+                if(dataJson.keySet().contains(key)) {
+                    user.setDataObject(
+                        key,
+                        jsonMap[key]!!.getDeclaredConstructor().newInstance(dataJson.getAsJsonObject(key)) as Json
+                    )
+                }
             }
         }
 
