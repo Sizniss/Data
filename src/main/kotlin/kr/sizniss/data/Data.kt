@@ -3,6 +3,7 @@ package kr.sizniss.data
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kr.sizniss.data.classes.Config
+import kr.sizniss.data.classes.Json
 import kr.sizniss.data.classes.User
 import kr.sizniss.data.managers.UserManager
 import org.bukkit.plugin.java.JavaPlugin
@@ -11,7 +12,10 @@ class Data : JavaPlugin() {
     companion object {
         lateinit var plugin: Data
 
+        val jsonMap = HashMap<String,Class<out Json>>()
+
         val configFile = Config(plugin.dataFolder, "data.json")
+
 
         fun saveJson() {
             val jsonArray = JsonArray()
@@ -23,7 +27,7 @@ class Data : JavaPlugin() {
                 val dataObject = JsonObject()
 
                 for (data in user.dataList) {
-                    dataObject.add(data.key, data.value)
+                    dataObject.add(data.key, data.value.toJson())
                 }
 
                 userObject.add("data", dataObject)
@@ -34,7 +38,7 @@ class Data : JavaPlugin() {
             configFile.save()
         }
 
-        fun loadJson() {
+        fun loadJson(key:String) {
             for (userData in configFile.getJsonArray()) {
                 val userJson = userData as JsonObject
 
@@ -42,19 +46,28 @@ class Data : JavaPlugin() {
 
                 val dataJson = userJson.getAsJsonObject("data")
 
-                for (dataKey in dataJson.keySet()) {
-                    user.setDataObject(dataKey, dataJson.getAsJsonObject(dataKey))
+                if(dataJson.keySet().contains(key)) {
+                    user.setDataObject(
+                        key,
+                        jsonMap[key]!!.getDeclaredConstructor().newInstance(dataJson.getAsJsonObject(key)) as Json
+                    )
                 }
-
-                UserManager.updateUser(user)
             }
+        }
+
+        fun loadAllJson() {
+            for (key in jsonMap.keys) {
+                loadJson(key)
+            }
+        }
+
+        fun <T:Json> request(key:String, jsonClass: Class<T>) {
+            jsonMap[key] = jsonClass
         }
     }
 
     override fun onEnable() {
         plugin = this
-
-        loadJson()
     }
 
     override fun onDisable() {
