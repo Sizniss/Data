@@ -5,9 +5,18 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import kr.sizniss.data.Data.Companion.plugin
 import org.bukkit.Location
+import org.bukkit.inventory.ItemStack
 
 object JsonManager {
 
+    fun toJson(itemStack: ItemStack) : JsonObject {
+        val jsonItem = JsonObject()
+
+        for (data in itemStack.serialize()) {
+            jsonItem.addProperty(data.key,data.value.toString())
+        }
+        return jsonItem
+    }
 
     fun toJson(location: Location) : JsonObject {
         val jsonLocation = JsonObject()
