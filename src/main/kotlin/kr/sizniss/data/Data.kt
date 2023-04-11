@@ -14,60 +14,63 @@ class Data : JavaPlugin() {
 
         val jsonMap = HashMap<String,Class<out Json>>()
 
-        val configFile = Config(plugin.dataFolder, "data.json")
+        lateinit var configFile : Config
+
+    }
 
 
-        fun saveJson() {
-            val jsonArray = JsonArray()
-            for (user in UserManager.userData.values) {
-                val userObject = JsonObject()
+    fun saveJson() {
+        val jsonArray = JsonArray()
+        for (user in UserManager.userData.values) {
+            val userObject = JsonObject()
 
-                userObject.addProperty("uuid", user.uuid)
+            userObject.addProperty("uuid", user.uuid)
 
-                val dataObject = JsonObject()
+            val dataObject = JsonObject()
 
-                for (data in user.dataList) {
-                    dataObject.add(data.key, data.value.toJson())
-                }
-
-                userObject.add("data", dataObject)
-
-                jsonArray.add(userObject)
+            for (data in user.dataList) {
+                dataObject.add(data.key, data.value.toJson())
             }
-            configFile.write(jsonArray.toString())
-            configFile.save()
+
+            userObject.add("data", dataObject)
+
+            jsonArray.add(userObject)
         }
+        configFile.write(jsonArray.toString())
+        configFile.save()
+    }
 
-        fun loadJson(key:String) {
-            for (userData in configFile.getJsonArray()) {
-                val userJson = userData as JsonObject
+    fun loadJson(key:String) {
+        for (userData in configFile.getJsonArray()) {
+            val userJson = userData as JsonObject
 
-                val user = User(userJson.get("uuid").asString)
+            val user = User(userJson.get("uuid").asString)
 
-                val dataJson = userJson.getAsJsonObject("data")
+            val dataJson = userJson.getAsJsonObject("data")
 
-                if(dataJson.keySet().contains(key)) {
-                    user.setDataObject(
-                        key,
-                        jsonMap[key]!!.getDeclaredConstructor().newInstance(dataJson.getAsJsonObject(key)) as Json
-                    )
-                }
-            }
-        }
-
-        fun loadAllJson() {
-            for (key in jsonMap.keys) {
-                loadJson(key)
+            if(dataJson.keySet().contains(key)) {
+                user.setDataObject(
+                    key,
+                    jsonMap[key]!!.getDeclaredConstructor().newInstance(dataJson.getAsJsonObject(key)) as Json
+                )
             }
         }
+    }
 
-        fun <T:Json> request(key:String, jsonClass: Class<T>) {
-            jsonMap[key] = jsonClass
+    fun loadAllJson() {
+        for (key in jsonMap.keys) {
+            loadJson(key)
         }
+    }
+
+    fun <T:Json> request(key:String, jsonClass: Class<T>) {
+        jsonMap[key] = jsonClass
+        loadJson(key)
     }
 
     override fun onEnable() {
         plugin = this
+        configFile = Config(plugin.dataFolder, "data.json")
     }
 
     override fun onDisable() {
