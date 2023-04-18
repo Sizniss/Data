@@ -9,29 +9,32 @@ import java.io.File
 
 class Config(private val path:File, filename:String) {
 
-    private var file = File(path,filename)
+
     private var text = "[]"
+    var file = File(path,filename)
 
     init {
+
         makeDataDir()
         create()
         text = read()
     }
 
-    private fun makeDataDir() {
+
+    fun makeDataDir() {
         if (!file.exists()) {
             path.mkdir()
         }
     }
 
-    private fun create() {
+    fun create() {
         if (!file.exists()) {
             file.createNewFile()
             write("[]")
         }
     }
 
-    private fun read() : String {
+    fun read() : String {
         return file.readText()
     }
     fun write(jsonObject: JsonObject) {

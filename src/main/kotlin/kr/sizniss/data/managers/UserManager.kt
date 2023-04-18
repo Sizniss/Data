@@ -17,9 +17,14 @@ object UserManager {
         userData[user.uuid] = user
     }
 
-    fun updateUser(jsonObject: JsonObject) {
-        val user = User(jsonObject)
-        userData[user.uuid] = user
+    fun hasUser(player: Player) : Boolean {
+        return hasUser(player.uniqueId)
+    }
+    fun hasUser(uuid: String) : Boolean {
+        return userData.keys.contains(uuid)
+    }
+    fun hasUser(uuid: UUID) : Boolean {
+        return hasUser(uuid.toString())
     }
 
     fun getUser(player: Player) : User {

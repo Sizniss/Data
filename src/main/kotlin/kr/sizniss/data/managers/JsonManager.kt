@@ -3,7 +3,7 @@ package kr.sizniss.data.managers
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import kr.sizniss.data.Data.Companion.plugin
+import kr.sizniss.data.DataPlugin.Companion.plugin
 import org.bukkit.Location
 import org.bukkit.inventory.ItemStack
 
