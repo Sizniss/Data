@@ -2,7 +2,6 @@ package kr.sizniss.data.classes
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import kr.sizniss.data.Data
 import kr.sizniss.data.managers.JsonManager
 import kr.sizniss.data.managers.UserManager
 import org.bukkit.Location
@@ -83,9 +82,12 @@ class User(val uuid: String)  {
         var tempObject : JsonObject = dataObject
 
         for (name in keyList) {
+            if (!tempObject.keySet().contains(name)){
+                val newObject = JsonObject()
+                tempObject.add(name,newObject)
+            }
             tempObject = tempObject.get(name).asJsonObject
         }
-
         return tempObject
     }
     fun getData(key:String) : JsonElement? {
