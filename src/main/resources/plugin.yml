@@ -3,3 +3,6 @@ author: ohurjon
 version: 1.0
 main: kr.sizniss.data.DataPlugin
 
+commands:
+  test:
+    description: "dsaa"
