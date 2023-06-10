@@ -1,6 +1,5 @@
 package kr.sizniss.data.classes
 
-import kr.sizniss.data.DataPlugin
 import kr.sizniss.data.DataPlugin.Companion.plugin
 
 import org.sqlite.SQLiteException
@@ -10,7 +9,7 @@ import java.sql.Statement
 
 class Sql {
     companion object {
-        var connection: Connection = DriverManager.getConnection("jdbc:sqlite:"+DataPlugin.plugin.dataFolder+"\\data.db")
+        var connection: Connection = DriverManager.getConnection("jdbc:sqlite:"+plugin.dataFolder+"\\data.db")
         var statement: Statement = connection.createStatement()
 
         @JvmStatic fun columnList(table: String) : List<String>{

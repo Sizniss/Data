@@ -1,6 +1,5 @@
 package kr.sizniss.data.runnable
 
-import kr.sizniss.data.DataPlugin
 import kr.sizniss.data.DataPlugin.Companion.plugin
 import kr.sizniss.data.classes.User
 import org.bukkit.scheduler.BukkitRunnable

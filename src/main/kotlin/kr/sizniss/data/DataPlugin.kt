@@ -1,15 +1,10 @@
 package kr.sizniss.data
 
-import kr.sizniss.data.classes.Sql
-import kr.sizniss.data.classes.User
 import kr.sizniss.data.runnable.AutoSave
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
-import org.bukkit.scheduler.BukkitRunnable
-import java.sql.ResultSetMetaData
-import java.util.UUID
 
 
 class DataPlugin : JavaPlugin() {
