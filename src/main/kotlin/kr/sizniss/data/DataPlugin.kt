@@ -1,5 +1,7 @@
 package kr.sizniss.data
 
+import kr.sizniss.data.classes.Sql
+import kr.sizniss.data.classes.Table
 import kr.sizniss.data.runnable.AutoSave
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -16,6 +18,11 @@ class DataPlugin : JavaPlugin() {
         plugin = this
 
         AutoSave().runTaskAsynchronously(plugin)
+
+        for (table in Sql.getTableList()) {
+            Table(table)
+        }
+
     }
 
     override fun onDisable() {

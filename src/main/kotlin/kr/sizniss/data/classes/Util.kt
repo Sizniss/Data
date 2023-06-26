@@ -18,7 +18,7 @@ class Util {
             for (data in itemStack.serialize()) {
                 jsonItem.addProperty(data.key,data.value.toString())
             }
-            return toPrettyJson(jsonItem)
+            return jsonItem.toString()
         }
 
         @JvmStatic fun toJson(location: Location) : String {
@@ -33,7 +33,7 @@ class Util {
             jsonLocation.addProperty("yaw",location.yaw)
             jsonLocation.addProperty("pitch",location.pitch)
 
-            return toPrettyJson(jsonLocation)
+            return jsonLocation.toString()
         }
 
         @JvmStatic fun toLocation(jsonString: String) : Location? {

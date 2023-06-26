@@ -10,8 +10,8 @@ class AutoSave : BukkitRunnable() {
             user.saveDataintoSql()
         }
 
-        plugin.server.broadcastMessage("자동 저장 시스템... 작동... ")
+        plugin.server.broadcastMessage("자동 저장")
 
-        AutoSave().runTaskLaterAsynchronously(plugin, 100)
+        AutoSave().runTaskLaterAsynchronously(plugin, 60*20)
     }
 }
