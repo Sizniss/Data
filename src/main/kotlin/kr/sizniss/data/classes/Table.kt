@@ -47,7 +47,7 @@ class Table(val name:String) {
         return column in columns
     }
     fun createColumn(column: String) {
-        Sql.createColumn(this, column)
+        Sql.createColumn(name, column)
     }
     fun getData(column: String) : List<String> {
         val list = HashSet<String>()

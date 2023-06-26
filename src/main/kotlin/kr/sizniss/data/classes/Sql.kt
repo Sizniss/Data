@@ -2,7 +2,6 @@ package kr.sizniss.data.classes
 
 import kr.sizniss.data.DataPlugin.Companion.plugin
 
-import org.sqlite.SQLiteException
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.Statement
@@ -24,7 +23,7 @@ class Sql {
         @JvmStatic fun createTable(name: String) {
             statement.executeUpdate("create table $name (id char(36) unique)")
         }
-        @JvmStatic fun createColumn(table: Table, column: String){
+        @JvmStatic fun createColumn(table: String, column: String){
             statement.executeUpdate("alter table $table add column $column varchar")
         }
         @JvmStatic fun saveData(table: String, uuid: String, column: String, value: String) {
