@@ -1,22 +1,29 @@
 package kr.sizniss.data.classes
 
+import kr.sizniss.data.DataPlugin.Companion.plugin
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 
 class Table(val name:String) {
     companion object {
-        private val availableIdList = HashSet<String>()
         private val tableList = HashMap<String, Table>()
+
+        @JvmStatic
+        fun loadTable(name: String) {
+            tableList[name] = Table(name)
+            plugin.server.broadcastMessage("SqlList " + Sql.getTableList().toString())
+            if(name !in Sql.getTableList()){
+                Sql.createTable(name)
+            }
+            plugin.server.broadcastMessage("tableList "+tableList.keys.toString())
+        }
         @JvmStatic
         fun containTable(name: String): Boolean {
             return tableList.keys.contains(name)
         }
         @JvmStatic
-        fun getTable(name: String): Table {
-            if (!containTable(name)) {
-                return Table(name)
-            }
-            return tableList[name]!!
+        fun getTable(name: String): Table? {
+            return tableList[name]
         }
         @JvmStatic
         fun getTableNameList() : List<String> {
@@ -30,48 +37,57 @@ class Table(val name:String) {
     }
 
     private val columns = HashSet<String>()
-    init {
-        tableList[name] = this
+    private val availableIdList = HashSet<String>()
 
-        if(name !in Sql.getTableList()){
-            Sql.createTable(name)
-        }
-        for(column in Sql.getColumnList(name)){
+    init {
+        for(column in getSqlColumnList()){
             columns.add(column)
         }
         for (uuid in getData("id")){
             availableIdList.add(uuid)
         }
     }
+
+    fun getSqlColumnList() : List<String> {
+        return Sql.runToDataList("pragma table_info($name)","name")
+    }
+    fun getSqlAvailableIDList() : List<String>{
+        return getData("id")
+    }
+    fun addUserLine(uuid: String) {
+        availableIdList.add(uuid)
+        Sql.runWithOutData("insert into $name (id) values (\"$uuid\")")
+    }
     fun containColumn(column: String) : Boolean {
         return column in columns
     }
     fun createColumn(column: String) {
-        Sql.createColumn(name, column)
+        columns.add(column)
+        Sql.runWithOutData("alter table $name add column $column varchar")
     }
     fun getData(column: String) : List<String> {
-        val list = HashSet<String>()
-        if(containColumn(column)){
-            val rs = Sql.statement.executeQuery("select $column from $name")
-            while (rs.next())
-                list.add(rs.getString(column))
-        }
-        return list.toList()
+        if(column in columns)
+            return Sql.runToDataList("select $column from $name", column)
+        error("Not Find column:$column")
     }
     fun getData(column: String, uuid:String) : String? {
-        if(containColumn(column)){
-            val rs = Sql.statement.executeQuery("select $column from $name where id = \"$uuid\"")
-            if (rs.next())
-                return rs.getString(column)
+        if(column in columns && uuid in availableIdList){
+            return Sql.runToSingleData("select $column from $name where id = \"$uuid\"", column)
         }
         return null
     }
     fun saveData(uuid: String, data: Map<String, String>){
         if(data.isNotEmpty()) {
+            if(uuid !in availableIdList){
+                addUserLine(uuid)
+            }
             var first = true
             var ids = "("
             var values = "("
             for ((key, value) in data) {
+                if(key !in columns){
+                    createColumn(key)
+                }
                 if (first) {
                     ids += key
                     values += "\'$value\'"
@@ -83,7 +99,7 @@ class Table(val name:String) {
             }
             ids += ")"
             values += ")"
-            Sql.statement.executeUpdate("update $name set $ids = $values where id = '$uuid'")
+            Sql.runWithOutData("update $name set $ids = $values where id = '$uuid'")
         }
     }
 }

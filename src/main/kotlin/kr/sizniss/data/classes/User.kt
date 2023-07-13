@@ -1,16 +1,19 @@
 package kr.sizniss.data.classes
 
+import kr.sizniss.data.DataPlugin.Companion.plugin
 import org.bukkit.entity.Player
 import java.util.UUID
 
-class User(val uuid: String)  {
+open class User(val uuid: String)  {
     constructor(player: Player) : this(player.uniqueId)
     constructor(uuid: UUID) : this(uuid.toString())
 
     companion object {
         val userList = HashMap<String,User>()
-        @JvmStatic fun getKey(table: Table, column: String) : String{
-            return "${table.name}.$column"
+
+        @JvmStatic fun loadUser(player: Player) {
+            val uuid = player.uniqueId.toString()
+            userList[uuid] = User(uuid)
         }
         @JvmStatic fun containUser(player: Player) : Boolean {
             return containUser(player.uniqueId)
@@ -21,58 +24,77 @@ class User(val uuid: String)  {
         @JvmStatic fun containUser(uuid: String): Boolean {
             return userList.keys.contains(uuid)
         }
-        @JvmStatic fun getUser(player: Player) : User {
+        @JvmStatic fun getUser(player: Player) : User? {
             return getUser(player.uniqueId)
         }
-        @JvmStatic fun getUser(uuid: UUID) : User {
+        @JvmStatic fun getUser(uuid: UUID) : User? {
             return getUser(uuid.toString())
         }
-        @JvmStatic fun getUser(uuid: String) : User {
-            if(!containUser(uuid)){
-              return User(uuid)
+        @JvmStatic fun getUser(uuid: String) : User? {
+            return userList[uuid]
+        }
+
+        @JvmStatic fun saveAllDataintoSql() {
+            for (user in userList.values) {
+                user.saveDataintoSql()
             }
-            return userList[uuid]!!
         }
     }
 
-    init {
-        userList[uuid] = this
+    private val userData = HashMap<String, String>()
+
+    fun unload() {
+        userList.remove(uuid)
+        saveDataintoSql()
+    }
+    fun containData(key: String) : Boolean{
+        return key in userList.keys
+    }
+    fun getData(key: String) : String? {
+        if(containData(key)){
+            return userData[key]
+        } else {
+            return getDatafromSql(key)
+        }
+    }
+    fun updateData(key: String, value: String) {
+        userData[key] = value
     }
 
-    private val data = HashMap<String, String>()
-
-    fun getData(table: Table, column: String) : String? {
-        val key = getKey(table,column)
-        if(getKey(table,column) in data.keys) {
-            return data[key]
-        } else  {
-            if(table.containColumn(column)){
-                return data[getKey(table,column)]
+    fun getDatafromSql(key: String) : String? {
+        val tableName = key.split(".")[0]
+        val column = key.split(".")[1]
+        if(Table.containTable(tableName)) {
+            val table = Table.getTable(tableName)
+            if (table!!.containColumn(column)) {
+                val data = table.getData(column,uuid)
+                if(data !=null){
+                    userData[key] = data
+                }
+                return data
             }
+        } else {
+            error("Table Not Found : $tableName")
         }
         return null
     }
-    fun updateData(table: Table, column:String, value: String) {
-        if(!table.containColumn(column))
-            table.createColumn(column)
-        data[getKey(table,column)] = value
-    }
     fun saveDataintoSql() {
-        val dataList = HashMap<Table, HashMap<String, String>>() // Table, Data<Key, Value>
+        val saveDataList = HashMap<String, HashMap<String, String>>() // Table, Data<Column, Value>
 
-        for (table in Table.getTableList()) {
-            dataList[table] = HashMap()
+        for (table in Table.getTableNameList()) {
+            saveDataList[table] = HashMap()
         }
-        for ((key, value) in data) {
-            val keyData = key.split(".")
-            val table = Table.getTable(keyData[0])
-            val columnName = keyData[1]
-
-            dataList[table]!![columnName] = value
+        for ((key, value) in userData ) { //userData<String,Value>
+            val tableName = key.split(".")[0]
+            val column = key.split(".")[1]
+            if(tableName in Table.getTableNameList())
+                saveDataList[tableName]!![column] = value
         }
 
-        for(table in dataList.keys) {
-            table.saveData(uuid, dataList[table]!!.toMap())
+        for(tableName in saveDataList.keys) {
+            val table = Table.getTable(tableName)!!
+            plugin.server.broadcastMessage("$uuid : $tableName ${saveDataList[tableName]!!.toMap()}")
+            table.saveData(uuid, saveDataList[tableName]!!.toMap())
         }
 
     }
